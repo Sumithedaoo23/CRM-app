@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Plant & Crop Recommendation</title>
+
+<style>
+/* ---------- global dark green theme ---------- */
+body {
+margin: 0;
+font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+background: #1b3b1b;  /* deep forest */
+background-image: radial-gradient(circle at 10% 20%, #2b572b, #0f2a0f);
+color: #e2f0da;
+min-height: 100vh;
+}
+
+header {
+background: #0c1f0c;
+color: #e0f0e0;
+padding: 20px 15px;
+text-align: center;
+box-shadow: 0 5px 15px rgba(0,0,0,0.7);
+border-bottom: 1px solid #3f7240;
+}
+
+header h1 {
+margin: 0;
+font-size: 2.5rem;
+font-weight: 600;
+letter-spacing: 2px;
+color: #e9f5e9;
+text-shadow: 2px 2px 5px #051005;
+}
+
+header p {
+margin: 5px 0 0;
+color: #b3d9b3;
+font-size: 1.1rem;
+font-style: italic;
+}
+
+.container {
+max-width: 1100px;
+margin: 20px auto;
+padding: 15px;
+}
+
+/* grid: exactly 3 per row */
+.grid {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+gap: 18px;
+}
+
+/* card style */
+.card {
+background: #1e331e;
+border: 1px solid #3a603a;
+border-radius: 20px;
+padding: 18px 12px;
+box-shadow: 0 8px 16px rgba(0, 10, 0, 0.8);
+transition: transform 0.15s ease, border-color 0.15s;
+}
+
+.card:hover {
+border-color: #7fb07f;
+box-shadow: 0 10px 20px rgba(30, 70, 30, 0.9);
+transform: translateY(-2px);
+}
+
+.card h3 {
+margin: 0 0 8px 0;
+font-size: 1.3rem;
+font-weight: 500;
+color: #c0ddc0;
+border-bottom: 1px dashed #3d6b3d;
+padding-bottom: 6px;
+}
+
+/* sensor value - bright and readable */
+.sensor-value {
+font-size: 2.3rem;
+font-weight: 600;
+color: #d0f0c0;
+text-shadow: 0 0 6px #1f4f1f;
+margin: 10px 0 5px;
+letter-spacing: 1px;
+}
+
+/* dropdowns */
+select, button {
+padding: 12px 16px;
+margin: 12px 0 8px;
+border-radius: 40px !important;
+width: 100%;
+font-size: 1em;
+background: #253f25;
+border: 1px solid #3f6f3f;
+color: #eaf5ea;
+transition: all 0.1s ease;
+box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+font-weight: 500;
+appearance: none;
+-webkit-appearance: none;
+background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="%23ccddcc" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>');
+background-repeat: no-repeat;
+background-position: right 1.2rem center;
+background-size: 1.2rem;
+}
+
+select:hover {
+border-color: #7fa07f;
+background-color: #2d4b2d;
+}
+
+select:focus {
+outline: none;
+border-color: #8fc88f;
+box-shadow: 0 0 0 3px #1d481d;
+}
+
+button {
+background: linear-gradient(145deg, #1f4a1f, #0f2d0f);
+border: 1px solid #4d7a4d;
+color: #ffffff;
+font-weight: 600;
+letter-spacing: 0.8px;
+cursor: pointer;
+box-shadow: 0 8px 15px #0b1f0b;
+transition: all 0.12s;
+}
+
+button:hover {
+background: #1f4f1f;
+border-color: #7fb07f;
+transform: translateY(-2px);
+box-shadow: 0 10px 18px #0f2a0f;
+}
+
+button:active {
+transform: translateY(1px);
+box-shadow: 0 4px 10px #041104;
+}
+
+.recommendation-card {
+background: #1f331f;
+border-left: 10px solid #558b55;
+padding: 18px;
+border-radius: 24px;
+margin-bottom: 20px;
+box-shadow: 0 6px 14px #0b1f0b;
+border: 1px solid #376337;
+}
+
+.recommendation-card h4 {
+margin: 0 0 10px 0;
+color: #d0f0d0;
+font-size: 1.8rem;
+font-weight: 500;
+}
+
+.recommendation-card p {
+margin: 6px 0;
+color: #c6ddc6;
+font-size: 1rem;
+}
+
+h2 {
+font-size: 1.9rem;
+color: #cef0ce;
+border-left: 8px solid #437343;
+padding-left: 18px;
+margin: 40px 0 20px;
+font-weight: 450;
+text-shadow: 1px 1px 3px #0b1d0b;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>🌱 GREEN PULSE</h1>
+<p>(Binding technology with nature)</p>
+</header>
+
+<div class="container">
+
+<h2>Sensor Data (Mock)</h2>
+<div class="grid">
+<!-- first row: three cards -->
+<div class="card"><h3>🌡️ Air Temperature</h3><div class="sensor-value" id="airTemp">-- °C</div></div>
+<div class="card"><h3>💧 Humidity</h3><div class="sensor-value" id="humidity">-- %</div></div>
+<div class="card"><h3>🌍 Soil Temperature</h3><div class="sensor-value" id="soilTemp">-- °C</div></div>
+
+<!-- second row: three cards -->
+<div class="card"><h3>🪴 Soil Moisture</h3><div class="sensor-value" id="soilMoisture">-- %</div></div>
+<div class="card"><h3>🌫️ CO2 Level</h3><div class="sensor-value" id="co2">-- PPM</div></div>
+<div class="card"><h3>🍃 O2 Level</h3><div class="sensor-value" id="o2">-- %</div></div>
+</div>
+
+<h2>🌿 Plant Recommendation (Based on Sensor Data)</h2>
+<div class="card" style="background:#1b2e1b;">
+<button onclick="getPlantRecommendations()">Get Plant Recommendations</button>
+</div>
+
+<h2>🌾 Crop Selection & Recommendation</h2>
+<div class="card" style="background:#1b2e1b;">
+
+<label>Select Soil Type:</label>
+<select id="soilType">
+<option value="">--Choose Soil--</option>
+<option value="Sandy">Sandy</option>
+<option value="Clay">Clay</option>
+<option value="Loamy">Loamy</option>
+<option value="Peaty">Peaty</option>
+<option value="Silty">Silty</option>
+</select>
+
+<label>Select Region:</label>
+<select id="region">
+<option value="">--Choose Region--</option>
+<option value="Tropical">Tropical</option>
+<option value="Temperate">Temperate</option>
+<option value="Arid">Arid</option>
+<option value="Subtropical">Subtropical</option>
+</select>
+
+<label>Select Environmental Condition:</label>
+<select id="environment">
+<option value="">--Choose Environment--</option>
+<option value="Hot">Hot</option>
+<option value="Moderate">Moderate</option>
+<option value="Cold">Cold</option>
+</select>
+
+<button onclick="getCropRecommendations()">Get Crop Recommendations</button>
+</div>
+
+<h2>📋 Recommendations</h2>
+<div id="recommendations"></div>
+
+</div>
+
+<script>
+// ========== SENSOR MOCK: UPDATES EVERY 3 SECONDS ==========
+// This function generates random values and updates the DOM
+function updateSensorData() {
+    // Air Temperature: range 16-30 °C
+    document.getElementById('airTemp').innerText = (16 + Math.random() * 14).toFixed(1) + " °C";
+    
+    // Humidity: range 35-80 %
+    document.getElementById('humidity').innerText = (35 + Math.random() * 45).toFixed(1) + " %";
+    
+    // Soil Temperature: range 14-26 °C
+    document.getElementById('soilTemp').innerText = (14 + Math.random() * 12).toFixed(1) + " °C";
+    
+    // Soil Moisture: range 20-75 %
+    document.getElementById('soilMoisture').innerText = (20 + Math.random() * 55).toFixed(0) + " %";
+    
+    // CO2 Level: range 360-700 PPM
+    document.getElementById('co2').innerText = (360 + Math.random() * 340).toFixed(0) + " PPM";
+    
+    // O2 Level: range 19-22 %
+    document.getElementById('o2').innerText = (19 + Math.random() * 3).toFixed(1) + " %";
+}
+
+// Call once immediately to populate on page load
+updateSensorData();
+
+// Set interval to update every 3 seconds (3000 milliseconds)
+setInterval(updateSensorData, 3000);
+
+// ========== PLANT RECOMMENDATION ==========
+function getPlantRecommendations() {
+    // Get current displayed values
+    const airTempStr = document.getElementById('airTemp').innerText;
+    const humidityStr = document.getElementById('humidity').innerText;
+
+    // Extract numeric part
+    const temp = parseFloat(airTempStr);
+    const humidity = parseFloat(humidityStr);
+
+    let html = "<h3 style='color:#daf0da; font-size:1.9rem; margin-bottom:15px;'>🌿 Recommended Plants:</h3>";
+
+    if (temp > 24 && humidity > 60) {
+        html += `<div class="recommendation-card"><h4>🍌 Banana</h4><p>Warm & humid perfect (temp >24°C, humidity >60%)</p><p>🌡️ current: ${airTempStr} / 💧 ${humidityStr}</p></div>`;
+    } else if (temp > 20) {
+        html += `<div class="recommendation-card"><h4>🌹 Rose</h4><p>Moderate climate plant (temp 20-24°C)</p><p>🌡️ current: ${airTempStr}</p></div>`;
+    } else {
+        html += `<div class="recommendation-card"><h4>🌵 Aloe Vera</h4><p>Cool & dry tolerant (temp <20°C)</p><p>🌡️ current: ${airTempStr}</p></div>`;
+    }
+    document.getElementById('recommendations').innerHTML = html;
+}
+
+// ========== CROP DATABASE (local fallback) ==========
+const crops = [
+    {name:"Wheat", soil:"Loamy", region:"Temperate", environment:"Moderate", fertilizer:"NPK", water:"500 mm", period:"120 days"},
+    {name:"Barley", soil:"Loamy", region:"Temperate", environment:"Cold", fertilizer:"Nitrogen", water:"400 mm", period:"100 days"},
+    {name:"Rice", soil:"Clay", region:"Tropical", environment:"Hot", fertilizer:"Urea", water:"1400 mm", period:"150 days"},
+    {name:"Sugarcane", soil:"Clay", region:"Tropical", environment:"Hot", fertilizer:"Nitrogen", water:"2000 mm", period:"12 months"},
+    {name:"Maize", soil:"Loamy", region:"Subtropical", environment:"Hot", fertilizer:"NPK", water:"600 mm", period:"100 days"},
+    {name:"Cotton", soil:"Loamy", region:"Subtropical", environment:"Hot", fertilizer:"Potassium", water:"800 mm", period:"160 days"},
+    {name:"Groundnut", soil:"Sandy", region:"Arid", environment:"Hot", fertilizer:"Calcium", water:"500 mm", period:"110 days"},
+    {name:"Millet", soil:"Sandy", region:"Arid", environment:"Hot", fertilizer:"Low NPK", water:"350 mm", period:"90 days"},
+    {name:"Mustard", soil:"Silty", region:"Temperate", environment:"Cold", fertilizer:"Sulphur", water:"400 mm", period:"120 days"},
+    {name:"Potato", soil:"Loamy", region:"Subtropical", environment:"Moderate", fertilizer:"Potassium", water:"600 mm", period:"100 days"},
+    {name:"Soybean", soil:"Loamy", region:"Tropical", environment:"Moderate", fertilizer:"Phosphorus", water:"500 mm", period:"110 days"},
+    {name:"Chickpea", soil:"Silty", region:"Arid", environment:"Moderate", fertilizer:"Low Nitrogen", water:"350 mm", period:"95 days"},
+    {name:"Tomato", soil:"Peaty", region:"Temperate", environment:"Moderate", fertilizer:"Organic", water:"600 mm", period:"90 days"},
+    {name:"Cabbage", soil:"Peaty", region:"Temperate", environment:"Cold", fertilizer:"Organic", water:"500 mm", period:"85 days"},
+    {name:"Onion", soil:"Sandy", region:"Subtropical", environment:"Moderate", fertilizer:"Sulphur", water:"450 mm", period:"100 days"}
+];
+
+// ========== CROP RECOMMENDATIONS ==========
+async function getCropRecommendations() {
+    const soil = document.getElementById('soilType').value;
+    const region = document.getElementById('region').value;
+    const env = document.getElementById('environment').value;
+
+    if (!soil || !region || !env) {
+        alert("❗ Please select all fields");
+        return;
+    }
+
+    // loading indicator
+    document.getElementById('recommendations').innerHTML = `<div class="recommendation-card" style="text-align:center;"><h4>⏳ analysing ...</h4><p style="color:#b3d9b3;">using field data</p></div>`;
+
+    try {
+        const response = await fetch("http://127.0.0.1:8000/predict", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                soil: soil.toLowerCase(),
+                region: region.toLowerCase(),
+                environment: env.toLowerCase()
+            })
+        });
+
+        if (!response.ok) throw new Error("Backend not reachable");
+
+        const data = await response.json();
+
+        // attempt to fetch Crop.json for extended details
+        fetch("json/Crop.json")
+            .then(res => res.json())
+            .then(cropDetails => {
+                let html = "<h3 style='color:#d0f0d0; font-size:2rem;'>🌿 AI Recommended:</h3>";
+                if (data.recommendations && data.recommendations.length) {
+                    data.recommendations.forEach(r => {
+                        const details = cropDetails[r.plant] || { best_fertilizers: ["organic"], cultivation_time: "variable", seed_cost_per_acre: "N/A", avg_yield_per_acre: "N/A" };
+                        html += `<div class="recommendation-card"><h4>${r.plant}</h4><p><strong>Confidence:</strong> ${(r.confidence * 100).toFixed(2)}%</p><p><strong>Fertilizers:</strong> ${details.best_fertilizers.join(", ")}</p><p><strong>Cultivation:</strong> ${details.cultivation_time} | 💰 ${details.seed_cost_per_acre} | 🌾 ${details.avg_yield_per_acre}</p></div>`;
+                    });
+                } else {
+                    html += "<div class='recommendation-card'><h4>No AI suggestions, showing local</h4></div>";
+                }
+                document.getElementById('recommendations').innerHTML = html;
+            })
+            .catch(() => localFilterRecommendations(soil, region, env));
+
+    } catch (error) {
+        // fallback to local filter
+        localFilterRecommendations(soil, region, env);
+    }
+}
+
+// local filter using crops array
+function localFilterRecommendations(soil, region, env) {
+    const soilLow = soil.toLowerCase();
+    const regionLow = region.toLowerCase();
+    const envLow = env.toLowerCase();
+
+    const filtered = crops.filter(c =>
+        c.soil.toLowerCase() === soilLow &&
+        c.region.toLowerCase() === regionLow &&
+        c.environment.toLowerCase() === envLow
+    );
+
+    let html = "<h3 style='color:#d0f0d0; font-size:2rem;'>🌾 Local recommendations:</h3>";
+
+    if (filtered.length === 0) {
+        html += `<div class="recommendation-card"><h4>No exact match</h4><p>try another combination</p></div>`;
+    } else {
+        filtered.forEach(c => {
+            html += `<div class="recommendation-card"><h4>${c.name}</h4>
+            <p><strong>Fertilizer:</strong> ${c.fertilizer} | 💧 ${c.water} | ⏱️ ${c.period}</p>
+            <p><span style="background:#2e4d2e; padding:5px 15px; border-radius:40px;">${c.soil} · ${c.region} · ${c.environment}</span></p>
+            </div>`;
+        });
+    }
+    document.getElementById('recommendations').innerHTML = html;
+}
+
+// Additional check to ensure sensor updates are working
+console.log("Sensor updates initialized - values will change every 3 seconds");
+</script>
+
+</body>
+</html>

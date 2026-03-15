@@ -1,0 +1,328 @@
+
+import React, { useState, useEffect } from 'react';
+import { Outlet, NavLink, useLocation } from 'react-router-dom';
+
+const UserLayout = () => {
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const location = useLocation();
+  
+  useEffect(() => {
+    console.log('Current location:', location.pathname);
+  }, [location]);
+
+  const handleLogout = () => {
+    localStorage.removeItem('crm-user');
+    window.location.href = '/login';
+  };
+
+  const user = JSON.parse(localStorage.getItem('crm-user') || '{}');
+
+  const menuItems = [
+    { path: '/user/dashboard', label: 'Dashboard', icon: '📊' },
+    { path: '/user/generate-ticket', label: 'Generate Ticket', icon: '➕' },
+    { path: '/user/ticket-status', label: 'Ticket Status', icon: '📋' },
+    { path: '/user/profile', label: 'Profile', icon: '👤' },
+  ];
+
+  // Check if we're on a user route
+  if (!location.pathname.startsWith('/user')) {
+    return null;
+  }
+
+  return React.createElement('div', {
+    style: {
+      display: 'flex',
+      minHeight: '100vh',
+      backgroundColor: '#f3f4f6'
+    }
+  },
+    // Sidebar
+    React.createElement('div', {
+      style: {
+        width: '280px',
+        backgroundColor: '#1a1f2e',
+        color: '#ffffff',
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        bottom: 0,
+        transform: sidebarOpen ? 'translateX(0)' : 'translateX(-100%)',
+        transition: 'transform 0.3s ease',
+        zIndex: 50,
+        overflowY: 'auto',
+        boxShadow: '4px 0 10px rgba(0,0,0,0.1)'
+      }
+    },
+      // Portal Header
+      React.createElement('div', {
+        style: {
+          padding: '24px',
+          borderBottom: '1px solid rgba(255,255,255,0.1)'
+        }
+      },
+        React.createElement('h2', {
+          style: {
+            fontSize: '24px',
+            fontWeight: '700',
+            color: '#ffffff',
+            margin: 0
+          }
+        }, 'User Portal'),
+        
+        React.createElement('p', {
+          style: {
+            fontSize: '12px',
+            color: '#9ca3af',
+            margin: '4px 0 0 0'
+          }
+        }, 'Customer Portal')
+      ),
+
+      // User Info
+      React.createElement('div', {
+        style: {
+          padding: '20px 24px',
+          borderBottom: '1px solid rgba(255,255,255,0.1)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px'
+        }
+      },
+        React.createElement('div', {
+          style: {
+            width: '40px',
+            height: '40px',
+            borderRadius: '50%',
+            backgroundColor: '#10b981',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '18px',
+            fontWeight: '600',
+            color: '#ffffff'
+          }
+        }, user?.name?.charAt(0) || 'U'),
+        
+        React.createElement('div', null,
+          React.createElement('div', {
+            style: {
+              fontSize: '16px',
+              fontWeight: '600',
+              color: '#ffffff'
+            }
+          }, user?.name || 'Regular User'),
+          
+          React.createElement('div', {
+            style: {
+              fontSize: '13px',
+              color: '#9ca3af'
+            }
+          }, user?.role || 'User')
+        )
+      ),
+
+      // Navigation Menu
+      React.createElement('nav', {
+        style: {
+          padding: '16px'
+        }
+      },
+        menuItems.map((item) =>
+          React.createElement(NavLink, {
+            key: item.path,
+            to: item.path,
+            style: ({ isActive }) => {
+              console.log(`${item.path} isActive:`, isActive);
+              return {
+                display: 'flex',
+                alignItems: 'center',
+                padding: '12px 16px',
+                marginBottom: '4px',
+                color: isActive ? '#ffffff' : '#9ca3af',
+                backgroundColor: isActive ? 'rgba(16, 185, 129, 0.2)' : 'transparent',
+                textDecoration: 'none',
+                borderRadius: '8px',
+                transition: 'all 0.2s',
+                borderLeft: isActive ? '3px solid #10b981' : '3px solid transparent'
+              };
+            }
+          },
+            React.createElement('span', {
+              style: {
+                marginRight: '12px',
+                fontSize: '18px'
+              }
+            }, item.icon),
+            item.label
+          )
+        )
+      ),
+
+      // Logout Button
+      React.createElement('div', {
+        style: {
+          padding: '20px',
+          borderTop: '1px solid rgba(255,255,255,0.1)',
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          backgroundColor: '#1a1f2e'
+        }
+      },
+        React.createElement('button', {
+          onClick: handleLogout,
+          style: {
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '100%',
+            padding: '12px',
+            backgroundColor: '#ef4444',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            fontSize: '14px',
+            fontWeight: '500',
+            cursor: 'pointer',
+            gap: '8px',
+            transition: 'all 0.2s'
+          },
+          onMouseEnter: (e) => e.currentTarget.style.backgroundColor = '#dc2626',
+          onMouseLeave: (e) => e.currentTarget.style.backgroundColor = '#ef4444'
+        },
+          React.createElement('span', null, '🚪'),
+          'Logout'
+        )
+      )
+    ),
+
+    // Main Content Area
+    React.createElement('div', {
+      style: {
+        flex: 1,
+        marginLeft: sidebarOpen ? '280px' : '0',
+        transition: 'margin-left 0.3s ease',
+        width: sidebarOpen ? 'calc(100% - 280px)' : '100%',
+        minHeight: '100vh',
+        backgroundColor: '#f3f4f6'
+      }
+    },
+      // Header
+      React.createElement('header', {
+        style: {
+          height: '70px',
+          backgroundColor: '#ffffff',
+          borderBottom: '1px solid #e5e7eb',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '0 24px',
+          position: 'sticky',
+          top: 0,
+          zIndex: 40,
+          boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+        }
+      },
+        React.createElement('div', {
+          style: {
+            display: 'flex',
+            alignItems: 'center',
+            gap: '16px'
+          }
+        },
+          React.createElement('button', {
+            onClick: () => setSidebarOpen(!sidebarOpen),
+            style: {
+              padding: '8px',
+              backgroundColor: '#f3f4f6',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontSize: '20px',
+              width: '40px',
+              height: '40px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            },
+            onMouseEnter: (e) => e.currentTarget.style.backgroundColor = '#e5e7eb',
+            onMouseLeave: (e) => e.currentTarget.style.backgroundColor = '#f3f4f6'
+          }, sidebarOpen ? '✕' : '☰'),
+          
+          React.createElement('h1', {
+            style: {
+              fontSize: '20px',
+              fontWeight: '600',
+              color: '#111827',
+              margin: 0
+            }
+          }, 'User Portal')
+        ),
+
+        React.createElement('div', {
+          style: {
+            display: 'flex',
+            alignItems: 'center',
+            gap: '16px'
+          }
+        },
+          React.createElement('span', {
+            style: {
+              fontSize: '14px',
+              color: '#6b7280'
+            }
+          }, new Date().toLocaleDateString()),
+          
+          React.createElement('div', {
+            style: {
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '4px 12px 4px 4px',
+              backgroundColor: '#f3f4f6',
+              borderRadius: '40px',
+              cursor: 'pointer'
+            }
+          },
+            React.createElement('div', {
+              style: {
+                width: '32px',
+                height: '32px',
+                backgroundColor: '#10b981',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'white',
+                fontWeight: '600',
+                fontSize: '14px'
+              }
+            }, user?.name?.charAt(0) || 'U'),
+            
+            React.createElement('span', {
+              style: {
+                fontSize: '14px',
+                fontWeight: '500',
+                color: '#111827'
+              }
+            }, user?.name || 'Regular User')
+          )
+        )
+      ),
+
+      // Main Content - This is where the dashboard should appear
+      React.createElement('main', {
+        style: {
+          padding: '24px',
+          minHeight: 'calc(100vh - 70px)',
+          backgroundColor: '#f3f4f6'
+        }
+      },
+        React.createElement(Outlet)
+      )
+    )
+  );
+};
+
+export default UserLayout;
